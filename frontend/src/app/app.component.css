@@ -1,0 +1,41 @@
+/* app.component.css */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+h1 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 0;
+}
+
+nav li {
+  display: inline;
+}
+
+nav a {
+  text-decoration: none;
+  font-weight: bold;
+  color: #3498db;
+  transition: color 0.2s ease;
+}
+
+nav a:hover {
+  color: #1d6fa5;
+}
+
+nav a.active {
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 4px;
+}

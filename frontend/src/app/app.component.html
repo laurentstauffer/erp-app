@@ -1,0 +1,17 @@
+<!-- app.component.html -->
+<div class="container">
+  <h1>Planification de projets</h1>
+
+  <nav>
+    <ul>
+      <li><a routerLink="/users" routerLinkActive="active">Users</a></li>
+      <li><a routerLink="/projects" routerLinkActive="active">Projects</a></li>
+      <li><a routerLink="/plannings" routerLinkActive="active">Plannings</a></li>
+    </ul>
+  </nav>
+
+  <hr>
+
+  <!-- Zone où les composants seront affichés -->
+  <router-outlet></router-outlet>
+</div>

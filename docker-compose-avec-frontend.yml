@@ -1,0 +1,16 @@
+services:
+# Frontend Angular
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: erp-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - gateway
+    restart: unless-stopped
+
+# POUR LANCER aller dans C:\Users\laure\MesApplications\erp-app et lancer : 
+# docker compose -f docker-compose.yml -f docker-compose-avec-frontend.yml up -d
+

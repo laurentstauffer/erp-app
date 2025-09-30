@@ -1,0 +1,20 @@
+<div class="form-overlay">
+  <div class="user-form-container">
+    <h3>Add User</h3>
+    <form (ngSubmit)="save()">
+      <label>Username:</label>
+      <input [(ngModel)]="user.username" name="username" required>
+
+      <label>Email:</label>
+      <input [(ngModel)]="user.email" name="email" type="email" required>
+
+      <label>Password:</label>
+      <input [(ngModel)]="user.password" name="password" type="password" required>
+
+      <div class="buttons">
+        <button type="submit">Create</button>
+        <button type="button" (click)="close()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>

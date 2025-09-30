@@ -1,0 +1,67 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: erp-postgres
+    environment:
+      POSTGRES_USER: erp
+      POSTGRES_PASSWORD: erp
+      POSTGRES_DB: erpdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - erp_pgdata:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d
+
+  user-service:
+    build: ./backend/user-service
+    container_name: user-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/erpdb
+      SPRING_DATASOURCE_USERNAME: erp
+      SPRING_DATASOURCE_PASSWORD: erp
+    depends_on:
+      - postgres
+
+  project-service:
+    build: ./backend/project-service
+    container_name: project-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/erpdb
+      SPRING_DATASOURCE_USERNAME: erp
+      SPRING_DATASOURCE_PASSWORD: erp
+    depends_on:
+      - postgres
+
+  planning-service:
+    build: ./backend/planning-service
+    container_name: planning-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/erpdb
+      SPRING_DATASOURCE_USERNAME: erp
+      SPRING_DATASOURCE_PASSWORD: erp
+    depends_on:
+      - postgres
+ 
+  gateway:
+    build: ./backend/gateway
+    container_name: gateway
+    ports:
+      - "8080:8080"
+    environment:
+      USERS_SERVICE_URL: http://user-service:8081
+      PROJECTS_SERVICE_URL: http://project-service:8082
+      PLANNING_SERVICE_URL: http://planning-service:8083
+    depends_on:
+      - user-service
+      - project-service
+      - planning-service
+
+volumes:
+  erp_pgdata:
+    external: true

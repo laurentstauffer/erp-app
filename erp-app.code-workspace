@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "backend/gateway"
+		},
+		{
+			"path": "backend/planning-service"
+		},
+		{
+			"path": "backend/project-service"
+		},
+		{
+			"path": "backend/user-service"
+		},
+		{
+			"path": "frontend"
+		}
+	],
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "interactive"
+	}
+}

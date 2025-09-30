@@ -1,0 +1,15 @@
+<div class="page">
+  <h2>Plannings</h2>
+  <table>
+    <thead>
+      <tr><th>Id</th><th>User.Id</th><th>Date</th></tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let planning of plannings">
+        <td>{{ planning.id }}</td>
+        <td>{{ planning.userId }}</td>
+        <td>{{ planning.date | date:'dd.MM.yyyy' }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
