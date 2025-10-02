@@ -1,7 +1,8 @@
+<app-search-bar [(search)]="search" (submit)="hihi()"></app-search-bar>
 <div class="page">
   <h2>Utilisateurs</h2>
 
-    <button  class="add-user-button" (click)="showForm = true" *ngIf="!showForm">Créer un utilisateur</button>
+  <button class="add-user-button" (click)="showForm = true" *ngIf="!showForm">Créer un utilisateur</button>
 
   <app-user-form
     *ngIf="showForm"
@@ -9,9 +10,7 @@
     (cancel)="showForm = false">
   </app-user-form>
 
-
-
-  <table *ngIf="users.length > 0">
+  <table *ngIf="filteredUsers().length; else noUsers">
     <thead>
       <tr>
         <th>ID</th>
@@ -20,11 +19,17 @@
       </tr> 
     </thead>
     <tbody>
-      <tr *ngFor="let user of users">
+      <tr *ngFor="let user of filteredUsers()">
         <td>{{ user.id }}</td>
         <td>{{ user.username }}</td>
         <td>{{ user.email }}</td>
       </tr>
     </tbody>
   </table>
+
+  <ng-template #noUsers>
+    <p>Pas d'utilisateur trouvé.</p>
+  </ng-template>
+
+
 </div>

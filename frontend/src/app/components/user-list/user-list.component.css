@@ -1,6 +1,7 @@
 /* user-list.component.css */
 
 .add-user-button {
+  flex: 0 0 auto;
   padding: 10px 18px;
   background: linear-gradient(135deg, #43a047, #2e7d32); /* vert plus doux */
   border: none;

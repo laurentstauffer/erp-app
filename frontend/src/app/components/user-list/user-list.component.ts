@@ -1,31 +1,45 @@
 import { CommonModule } from '@angular/common'; 
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit, model, computed } from '@angular/core';
 import { User, UserService } from '../../services/user.service';
 import { UserFormComponent } from '../user-form/user-form.component';
+import { SearchBarComponent } from '../search-bar/search-bar.component';
 
 @Component({
   selector: 'app-user-list',
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.css'],
   standalone: true,
-  imports: [CommonModule, UserFormComponent]
+  imports: [CommonModule, UserFormComponent, SearchBarComponent]
 })
 export class UserListComponent implements OnInit {
-  users: User[] = [];
+  users = model<User[]>([]);   // tableau vide au départ
+
+  search = model('');
+
+  filteredUsers = computed(() => {
+    return this.users().filter((user) => 
+    user.username.includes(this.search()))
+  });
   showForm = false;
 
-  constructor(private userService: UserService) {}
+  userService = inject(UserService)
+
+  constructor() {}
 
   ngOnInit() {
     this.loadUsers();
   }
 
   loadUsers() {
-    this.userService.getUsers().subscribe(users => this.users = users);
+    this.userService.getUsers().subscribe(users => this.users.set(users));
   }
 
   onUserCreated() {
     this.showForm = false;
     this.loadUsers();
+  }
+
+  hihi() {
+    console.log("hihi");
   }
 }
