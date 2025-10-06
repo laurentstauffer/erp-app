@@ -1,51 +1,56 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
 import { Project } from '../../models/project.model';
-import { ProjectFormComponent } from '../project-form/project-form.component';
-import { TaskFormComponent } from '../task-form/task-form.component';
 
 @Component({
   selector: 'app-project-list',
   standalone: true,
-  imports: [CommonModule, ProjectFormComponent, TaskFormComponent],
+  imports: [CommonModule],
   templateUrl: './project-list.component.html',
   styleUrls: ['./project-list.component.css']
 })
 export class ProjectListComponent implements OnInit {
   projects: Project[] = [];
-  showProjectForm = false;
-  projectToEdit: Project | null = null;
-
-  projectService = inject(ProjectService)
-
-  constructor() {}
+  
+  projectService = inject(ProjectService);
+  router = inject(Router);
 
   ngOnInit(): void {
     this.loadProjects();
   }
 
   loadProjects(): void {
-    this.projectService.getProjects().subscribe(data => {
-      this.projects = data;
+    this.projectService.getProjects().subscribe({
+      next: (data) => {
+        this.projects = data;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des projets:', error);
+      }
     });
   }
 
-  toggleProjectForm() {
-    this.showProjectForm = !this.showProjectForm;
-    if (!this.showProjectForm) {
-      this.projectToEdit = null;
+  createNewProject(): void {
+    this.router.navigate(['/projects/new']);
+  }
+
+  editProject(project: Project): void {
+    this.router.navigate(['/projects', project.id]);
+  }
+
+  deleteProject(project: Project): void {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer le projet "${project.name}" ?`)) {
+      this.projectService.deleteProject(project.id!).subscribe({
+        next: () => {
+          this.loadProjects();
+        },
+        error: (error) => {
+          console.error('Erreur lors de la suppression du projet:', error);
+          alert('Erreur lors de la suppression du projet');
+        }
+      });
     }
-  }
-
-  editProject(project: Project) {
-    this.projectToEdit = project;
-    this.showProjectForm = true;
-  }
-
-  onProjectSaved() {
-    this.loadProjects();
-    this.showProjectForm = false;
-    this.projectToEdit = null;
   }
 }

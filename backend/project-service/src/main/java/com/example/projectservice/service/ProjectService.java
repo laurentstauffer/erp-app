@@ -29,6 +29,12 @@ public class ProjectService {
     }
 
     public Project saveProject(Project project) {
+        // Si le projet a des tâches, configurer la relation bidirectionnelle
+        if (project.getTasks() != null && !project.getTasks().isEmpty()) {
+            for (Task task : project.getTasks()) {
+                task.setProject(project);
+            }
+        }
         return projectRepository.save(project);
     }
 

@@ -1,0 +1,158 @@
+<div class="project-detail-page">
+  <div class="header">
+    <h2>{{ isEditMode ? 'Modifier le projet' : 'Nouveau projet' }}</h2>
+    <button class="btn-secondary" (click)="cancel()">
+      ← Retour à la liste
+    </button>
+  </div>
+
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="content" *ngIf="!isLoading">
+    <div class="section">
+      <h3>Informations du projet</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="name">Nom du projet *</label>
+          <input 
+            id="name" 
+            type="text" 
+            [(ngModel)]="project.name" 
+            placeholder="Entrez le nom du projet"
+            required>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="description">Description *</label>
+          <textarea 
+            id="description" 
+            [(ngModel)]="project.description" 
+            placeholder="Entrez la description du projet"
+            rows="3"
+            required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="startDate">Date de début *</label>
+          <input 
+            id="startDate" 
+            type="date" 
+            [(ngModel)]="project.startDate" 
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="endDate">Date de fin *</label>
+          <input 
+            id="endDate" 
+            type="date" 
+            [(ngModel)]="project.endDate" 
+            required>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Tâches du projet</h3>
+      
+      <div class="task-form">
+        <h4>{{ editingTaskIndex !== null ? 'Modifier la tâche' : 'Ajouter une tâche' }}</h4>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="taskName">Nom de la tâche</label>
+            <input 
+              id="taskName" 
+              type="text" 
+              [(ngModel)]="newTask.name" 
+              placeholder="Nom de la tâche">
+          </div>
+
+          <div class="form-group">
+            <label for="taskDuration">Durée (jours)</label>
+            <input 
+              id="taskDuration" 
+              type="number" 
+              [(ngModel)]="newTask.duration" 
+              min="1">
+          </div>
+
+          <div class="form-group">
+            <label for="taskDueDate">Date d'échéance</label>
+            <input 
+              id="taskDueDate" 
+              type="date" 
+              [(ngModel)]="newTask.dueDate">
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label>
+              <input 
+                type="checkbox" 
+                [(ngModel)]="newTask.done">
+              Terminée
+            </label>
+          </div>
+        </div>
+        <div class="task-form-actions">
+          <button class="btn-add" (click)="addTask()">
+            {{ editingTaskIndex !== null ? 'Mettre à jour' : '+ Ajouter la tâche' }}
+          </button>
+          <button class="btn-cancel" *ngIf="editingTaskIndex !== null" (click)="cancelEdit()">
+            Annuler
+          </button>
+        </div>
+      </div>
+
+      <div class="tasks-list" *ngIf="project.tasks && project.tasks.length > 0">
+        <h4>Tâches ajoutées ({{ project.tasks.length }})</h4>
+        <table class="tasks-table">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Durée</th>
+              <th>Échéance</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let task of project.tasks; let i = index">
+              <td>{{ task.name }}</td>
+              <td>{{ task.duration }} jour{{ task.duration > 1 ? 's' : '' }}</td>
+              <td>{{ task.dueDate ? (task.dueDate | date:'dd/MM/yyyy') : '-' }}</td>
+              <td>
+                <span class="status" [class.done]="task.done">
+                  {{ task.done ? '✅ Terminée' : '🕛 En cours' }}
+                </span>
+              </td>
+              <td class="task-actions">
+                <button class="btn-edit-small" (click)="editTask(i)" title="Modifier">
+                  ✏️
+                </button>
+                <button class="btn-delete-small" (click)="removeTask(i)" title="Supprimer">
+                  🗑️
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="no-tasks" *ngIf="!project.tasks || project.tasks.length === 0">
+        Aucune tâche ajoutée pour le moment
+      </p>
+    </div>
+
+    <div class="actions-footer">
+      <button class="btn-secondary" (click)="cancel()">Annuler</button>
+      <button class="btn-primary" (click)="saveProject()" [disabled]="isLoading">
+        {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="loading" *ngIf="isLoading">
+    Chargement...
+  </div>
+</div>

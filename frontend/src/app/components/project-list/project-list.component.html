@@ -1,67 +1,43 @@
-<div class="page">
-  <h2>Projets</h2>
-  <table>
-    <thead>
-      <tr><th>ID</th><th>Nom</th><th>Description</th></tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let project of projects">
-        <td>{{ project.id }}</td>
-        <td>{{ project.name }}</td>
-        <td>{{ project.description }}</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-
-<div class="project-list-container">
-  <button class="add-project-button" (click)="toggleProjectForm()">
-    {{ showProjectForm ? 'Fermer Formulaire' : 'Add Project' }}
-  </button>
-
-  <app-project-form 
-    *ngIf="showProjectForm" 
-    [projectToEdit]="projectToEdit"
-    (projectSaved)="onProjectSaved()">
-  </app-project-form>
-
-<div *ngFor="let project of projects" class="project-card">
-  <div class="project-header">
-    <h3>{{ project.name }}</h3>
-    <button class="edit-button" (click)="editProject(project)">✏️ Modifier</button>
-  </div>
-  <p class="project-dates">
-    Du <strong>{{ project.startDate | date:'dd.MM.yyyy' }}</strong>
-    au <strong>{{ project.endDate | date:'dd.MM.yyyy' }}</strong>
-  </p>
-
-  <!-- Formulaire d'ajout de tâche -->
-  <app-task-form [projectId]="project.id!"></app-task-form>
-
-  <!-- Liste des tâches -->
-  <div class="tasks-container" *ngIf="project.tasks?.length; else noTasks">
-    <div *ngFor="let task of project.tasks" class="task-card">
-      <div class="task-header">
-        <h4>{{ task.name }}</h4>
-        <span class="status" [class.done]="task.done">
-          {{ task.done ? '✅ Terminée' : '🕛 En cours' }}
-        </span>
-      </div>
-
-      <div class="task-details">
-        <p><strong>Durée :</strong> {{ task.duration }} jour{{ task.duration > 1 ? 's' : '' }}</p>
-        <p *ngIf="task.dueDate"><strong>Échéance :</strong> {{ task.dueDate | date:'dd.MM.yyyy' }}</p>
-        <p><strong>ID :</strong> {{ task.id }}</p>
-        <p><strong>Projet :</strong> {{ task.projectId }}</p>
-      </div>
-    </div>
+<div class="project-list-page">
+  <div class="header">
+    <h2>Gestion des Projets</h2>
+    <button class="btn-primary" (click)="createNewProject()">
+      <span class="icon">+</span> Nouveau Projet
+    </button>
   </div>
 
-  <ng-template #noTasks>
-    <p class="no-tasks">Aucune tâche pour ce projet.</p>
-  </ng-template>
-</div>
-
-
+  <div class="table-container">
+    <table class="projects-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nom</th>
+          <th>Description</th>
+          <th>Date de début</th>
+          <th>Date de fin</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let project of projects">
+          <td>{{ project.id }}</td>
+          <td>{{ project.name }}</td>
+          <td>{{ project.description }}</td>
+          <td>{{ project.startDate | date:'dd/MM/yyyy' }}</td>
+          <td>{{ project.endDate | date:'dd/MM/yyyy' }}</td>
+          <td class="actions">
+            <button class="btn-edit" (click)="editProject(project)" title="Modifier">
+              <span class="icon">✏️</span>
+            </button>
+            <button class="btn-delete" (click)="deleteProject(project)" title="Supprimer">
+              <span class="icon">🗑️</span>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="projects.length === 0">
+          <td colspan="6" class="no-data">Aucun projet disponible</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
