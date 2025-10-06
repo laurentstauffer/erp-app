@@ -52,8 +52,8 @@ public class ProjectService {
 
     public Task updateTask(Long projectId, Long taskId, Task updatedTask) {
         return taskRepository.findById(taskId).map(task -> {
-            task.setTitle(updatedTask.getTitle());
-            task.setDescription(updatedTask.getDescription());
+            task.setName(updatedTask.getName());
+            task.setDuration(updatedTask.getDuration());
             task.setDone(updatedTask.isDone());
             task.setDueDate(updatedTask.getDueDate());
             return taskRepository.save(task);

@@ -1,0 +1,54 @@
+<div class="task-form-container">
+  <h4>Ajouter une tâche</h4>
+
+
+  <form (ngSubmit)="createTask()" #taskForm="ngForm">
+    <div class="form-group">
+      <label for="name">Nom</label>
+      <input
+        type="text"
+        id="name"
+        name="name"
+        [(ngModel)]="task.name"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="duration">Durée (en heures)</label>
+      <input
+        type="number"
+        id="duration"
+        name="duration"
+        [(ngModel)]="task.duration"
+        required
+        min="0"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="done">Terminée</label>
+      <input
+        type="checkbox"
+        id="done"
+        name="done"
+        [(ngModel)]="task.done"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="dueDate">Date d’échéance</label>
+      <input
+        type="date"
+        id="dueDate"
+        name="dueDate"
+        [(ngModel)]="task.dueDate"
+      />
+    </div>
+
+    <button type="submit" class="btn">Ajouter la tâche</button>
+  </form>
+
+  <p class="success" *ngIf="successMessage">{{ successMessage }}</p>
+  <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+</div>

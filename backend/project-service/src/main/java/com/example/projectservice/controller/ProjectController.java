@@ -1,41 +1,61 @@
 package com.example.projectservice.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.projectservice.dto.ProjectDTO;
+import com.example.projectservice.dto.TaskDTO;
+import com.example.projectservice.mapper.ProjectMapper;
+import com.example.projectservice.mapper.TaskMapper;
 import com.example.projectservice.model.Project;
 import com.example.projectservice.model.Task;
 import com.example.projectservice.service.ProjectService;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/projects")
-@CrossOrigin(origins = "http://localhost:4200") // Angular dev server
+@RequiredArgsConstructor
 public class ProjectController {
     private final ProjectService service;
+    private final ProjectMapper projectMapper;
+    private final TaskMapper taskMapper;
 
-    public ProjectController(ProjectService service) {
-        this.service = service;
-    }
 
     // ----- Project endpoints -----
     @GetMapping
-    public List<Project> getProjects() {
-        return service.getAllProjects();
+    public List<ProjectDTO> getProjects() {
+        List<Project> projects = service.getAllProjects();
+        return projectMapper.toDtoList(projects);
     }
 
     @GetMapping("/{id}")
-    public Project getProject(@PathVariable Long id) {
-        return service.getProject(id).orElseThrow(() -> new RuntimeException("Project not found"));
+    public ProjectDTO getProject(@PathVariable Long id) {
+        Project project = service.getProject(id).orElseThrow(() -> new RuntimeException("Project not found"));
+        return projectMapper.toDto(project);
     }
 
     @PostMapping
-    public Project createProject(@RequestBody Project project) { 
-        return service.saveProject(project);
+    public ProjectDTO createProject(@RequestBody ProjectDTO projectDTO) { 
+        Project project = projectMapper.toEntity(projectDTO);
+        Project savedProject = service.saveProject(project);
+        return projectMapper.toDto(savedProject);
     }
 
     @PutMapping("/{id}")
-    public Project updateProject(@PathVariable Long id, @RequestBody Project project) {
+    public ProjectDTO updateProject(@PathVariable Long id, @RequestBody ProjectDTO projectDTO) {
+        Project project = projectMapper.toEntity(projectDTO);
         project.setId(id);
-        return service.saveProject(project);
+        Project savedProject = service.saveProject(project);
+        return projectMapper.toDto(savedProject);
     }
 
     @DeleteMapping("/{id}")
@@ -45,18 +65,19 @@ public class ProjectController {
 
     // ----- Task endpoints -----
     @GetMapping("/{id}/tasks")
-    public List<Task> getTasks(@PathVariable Long id) {
-        return service.getTasksByProject(id);
+    public List<TaskDTO> getTasks(@PathVariable Long id) {
+        List<Task> tasks = service.getTasksByProject(id);
+        return taskMapper.toDtoList(tasks);
     }
 
     @PostMapping("/{id}/tasks")
-    public Task createTask(@PathVariable Long id, @RequestBody Task task) {
-        return service.addTask(id, task);
+    public TaskDTO createTask(@PathVariable Long id, @RequestBody TaskDTO taskDto) {
+        return taskMapper.toDto(service.addTask(id, taskMapper.toEntity(taskDto)));
     }
 
     @PutMapping("/{projectId}/tasks/{taskId}")
-    public Task updateTask(@PathVariable Long projectId, @PathVariable Long taskId, @RequestBody Task task) {
-        return service.updateTask(projectId, taskId, task);
+    public TaskDTO updateTask(@PathVariable Long projectId, @PathVariable Long taskId, @RequestBody TaskDTO taskDto) {
+        return taskMapper.toDto(service.updateTask(projectId, taskId, taskMapper.toEntity(taskDto)));
     }
 
     @DeleteMapping("/{projectId}/tasks/{taskId}")

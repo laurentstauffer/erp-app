@@ -13,3 +13,55 @@
     </tbody>
   </table>
 </div>
+
+
+<div class="project-list-container">
+  <button class="add-project-button" (click)="toggleProjectForm()">
+    {{ showProjectForm ? 'Fermer Formulaire' : 'Add Project' }}
+  </button>
+
+  <app-project-form 
+    *ngIf="showProjectForm" 
+    [projectToEdit]="projectToEdit"
+    (projectSaved)="onProjectSaved()">
+  </app-project-form>
+
+<div *ngFor="let project of projects" class="project-card">
+  <div class="project-header">
+    <h3>{{ project.name }}</h3>
+    <button class="edit-button" (click)="editProject(project)">✏️ Modifier</button>
+  </div>
+  <p class="project-dates">
+    Du <strong>{{ project.startDate | date:'dd.MM.yyyy' }}</strong>
+    au <strong>{{ project.endDate | date:'dd.MM.yyyy' }}</strong>
+  </p>
+
+  <!-- Formulaire d'ajout de tâche -->
+  <app-task-form [projectId]="project.id!"></app-task-form>
+
+  <!-- Liste des tâches -->
+  <div class="tasks-container" *ngIf="project.tasks?.length; else noTasks">
+    <div *ngFor="let task of project.tasks" class="task-card">
+      <div class="task-header">
+        <h4>{{ task.name }}</h4>
+        <span class="status" [class.done]="task.done">
+          {{ task.done ? '✅ Terminée' : '🕛 En cours' }}
+        </span>
+      </div>
+
+      <div class="task-details">
+        <p><strong>Durée :</strong> {{ task.duration }} jour{{ task.duration > 1 ? 's' : '' }}</p>
+        <p *ngIf="task.dueDate"><strong>Échéance :</strong> {{ task.dueDate | date:'dd.MM.yyyy' }}</p>
+        <p><strong>ID :</strong> {{ task.id }}</p>
+        <p><strong>Projet :</strong> {{ task.projectId }}</p>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noTasks>
+    <p class="no-tasks">Aucune tâche pour ce projet.</p>
+  </ng-template>
+</div>
+
+
+</div>

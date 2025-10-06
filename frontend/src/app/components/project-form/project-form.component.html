@@ -1,0 +1,18 @@
+<div class="project-form-container">
+  <h3>{{ isEditMode ? 'Modifier le projet' : 'Créer un projet' }}</h3>
+  <form (ngSubmit)="saveProject()">
+    <label for="name">Nom du projet</label>
+    <input id="name" type="text" [(ngModel)]="project.name" name="name" required />
+
+    <label for="startDate">Date de début</label>
+    <input id="startDate" type="date" [(ngModel)]="project.startDate" name="startDate" required />
+
+    <label for="endDate">Date de fin</label>
+    <input id="endDate" type="date" [(ngModel)]="project.endDate" name="endDate" required />
+
+    <button type="submit">{{ isEditMode ? 'Modifier' : 'Ajouter' }}</button>
+  </form>
+
+  <p class="success" *ngIf="successMessage">{{ successMessage }}</p>
+  <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+</div>

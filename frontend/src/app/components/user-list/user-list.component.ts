@@ -1,8 +1,8 @@
-import { CommonModule } from '@angular/common'; 
-import { Component, inject, OnInit, model, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, computed, inject, model, OnInit } from '@angular/core';
 import { User, UserService } from '../../services/user.service';
-import { UserFormComponent } from '../user-form/user-form.component';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
+import { UserFormComponent } from '../user-form/user-form.component';
 
 @Component({
   selector: 'app-user-list',
