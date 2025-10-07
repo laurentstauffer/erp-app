@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
-import { Project, Task } from '../../models/project.model';
+import { Project, Task, TaskStatus } from '../../models/project.model';
 
 @Component({
   selector: 'app-project-detail',
@@ -29,7 +29,10 @@ export class ProjectDetailComponent implements OnInit {
     name: '',
     duration: 1,
     done: false,
-    dueDate: ''
+    status: TaskStatus.TODO,
+    dueDate: '',
+    startDate: '',
+    predecessorIds: []
   };
 
   editingTaskIndex: number | null = null;
@@ -83,7 +86,8 @@ export class ProjectDetailComponent implements OnInit {
     if (this.isEditMode && this.project.id) {
       this.projectService.updateProject(this.project.id, this.project).subscribe({
         next: () => {
-          this.router.navigate(['/projects']);
+          // Après la mise à jour du projet, mettre à jour les dépendances de chaque tâche
+          this.updateTaskDependencies();
         },
         error: (error) => {
           console.error('Erreur lors de la mise à jour:', error);
@@ -94,11 +98,6 @@ export class ProjectDetailComponent implements OnInit {
     } else {
       this.projectService.createProject(this.project).subscribe({
         next: (createdProject) => {
-          // Après la création, assigner le projectId aux tâches et les créer
-          if (this.project.tasks && this.project.tasks.length > 0 && createdProject.id) {
-            // Les tâches ont déjà été envoyées avec le projet
-            // Pas besoin de les créer séparément
-          }
           this.router.navigate(['/projects']);
         },
         error: (error) => {
@@ -108,6 +107,30 @@ export class ProjectDetailComponent implements OnInit {
         }
       });
     }
+  }
+
+  updateTaskDependencies(): void {
+    if (!this.project.id || !this.project.tasks || this.project.tasks.length === 0) {
+      this.router.navigate(['/projects']);
+      return;
+    }
+
+    // Mettre à jour chaque tâche qui a un ID (tâches existantes)
+    const taskUpdates = this.project.tasks
+      .filter(task => task.id) // Seulement les tâches existantes
+      .map(task => 
+        this.projectService.updateTask(this.project.id!, task.id!, task).toPromise()
+      );
+
+    Promise.all(taskUpdates)
+      .then(() => {
+        this.router.navigate(['/projects']);
+      })
+      .catch((error) => {
+        console.error('Erreur lors de la mise à jour des dépendances:', error);
+        this.errorMessage = 'Erreur lors de la mise à jour des dépendances';
+        this.isLoading = false;
+      });
   }
 
   validateProject(): boolean {
@@ -169,12 +192,83 @@ export class ProjectDetailComponent implements OnInit {
       name: '',
       duration: 1,
       done: false,
-      dueDate: ''
+      status: TaskStatus.TODO,
+      dueDate: '',
+      startDate: '',
+      predecessorIds: []
     };
     this.editingTaskIndex = null;
   }
 
   cancel(): void {
     this.router.navigate(['/projects']);
+  }
+
+  // Méthodes pour la gestion des dépendances et statuts
+
+  getAvailablePredecessors(): Task[] {
+    if (!this.project.tasks) {
+      return [];
+    }
+    
+    // Exclure la tâche en cours d'édition
+    if (this.editingTaskIndex !== null) {
+      return this.project.tasks.filter((_, index) => index !== this.editingTaskIndex);
+    }
+    
+    return this.project.tasks;
+  }
+
+  getPredecessorNames(predecessorIds: number[]): string[] {
+    if (!predecessorIds || !this.project.tasks) {
+      return [];
+    }
+    
+    return predecessorIds
+      .map(id => {
+        const task = this.project.tasks?.find(t => t.id === id);
+        return task ? task.name : `Tâche #${id}`;
+      });
+  }
+
+  getStatusClass(status: string): string {
+    const statusMap: { [key: string]: string } = {
+      'TODO': 'status-todo',
+      'IN_PROGRESS': 'status-in-progress',
+      'BLOCKED': 'status-blocked',
+      'COMPLETED': 'status-completed'
+    };
+    return statusMap[status] || 'status-todo';
+  }
+
+  getStatusLabel(status: string): string {
+    const labelMap: { [key: string]: string } = {
+      'TODO': '📋 À faire',
+      'IN_PROGRESS': '🔄 En cours',
+      'BLOCKED': '🚫 Bloquée',
+      'COMPLETED': '✅ Terminée'
+    };
+    return labelMap[status] || '📋 À faire';
+  }
+
+  recalculateDates(): void {
+    if (!this.project.id) {
+      alert('Veuillez d\'abord sauvegarder le projet');
+      return;
+    }
+
+    this.isLoading = true;
+    this.projectService.recalculateProjectDates(this.project.id).subscribe({
+      next: () => {
+        // Recharger le projet pour obtenir les dates mises à jour
+        this.loadProject(this.project.id!);
+        alert('Les dates ont été recalculées avec succès');
+      },
+      error: (error) => {
+        console.error('Erreur lors du recalcul des dates:', error);
+        this.errorMessage = 'Erreur lors du recalcul des dates';
+        this.isLoading = false;
+      }
+    });
   }
 }

@@ -79,20 +79,47 @@
           </div>
 
           <div class="form-group">
-            <label for="taskDueDate">Date d'échéance</label>
+            <label for="taskStatus">Statut</label>
+            <select id="taskStatus" [(ngModel)]="newTask.status">
+              <option value="TODO">À faire</option>
+              <option value="IN_PROGRESS">En cours</option>
+              <option value="BLOCKED">Bloquée</option>
+              <option value="COMPLETED">Terminée</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="taskPredecessors">Dépendances (tâches prédécesseurs)</label>
+            <select 
+              id="taskPredecessors" 
+              [(ngModel)]="newTask.predecessorIds" 
+              multiple
+              size="3">
+              <option *ngFor="let task of getAvailablePredecessors()" [value]="task.id">
+                {{ task.name }}
+              </option>
+            </select>
+            <small class="help-text">Maintenez Ctrl (Cmd sur Mac) pour sélectionner plusieurs tâches</small>
+          </div>
+
+          <div class="form-group">
+            <label for="taskStartDate">Date de début (auto-calculée)</label>
+            <input 
+              id="taskStartDate" 
+              type="date" 
+              [(ngModel)]="newTask.startDate"
+              readonly
+              placeholder="Calculée automatiquement">
+          </div>
+
+          <div class="form-group">
+            <label for="taskDueDate">Date d'échéance (auto-calculée)</label>
             <input 
               id="taskDueDate" 
               type="date" 
-              [(ngModel)]="newTask.dueDate">
-          </div>
-
-          <div class="form-group checkbox-group">
-            <label>
-              <input 
-                type="checkbox" 
-                [(ngModel)]="newTask.done">
-              Terminée
-            </label>
+              [(ngModel)]="newTask.dueDate"
+              readonly
+              placeholder="Calculée automatiquement">
           </div>
         </div>
         <div class="task-form-actions">
@@ -107,13 +134,20 @@
 
       <div class="tasks-list" *ngIf="project.tasks && project.tasks.length > 0">
         <h4>Tâches ajoutées ({{ project.tasks.length }})</h4>
+        <div class="recalculate-section">
+          <button class="btn-recalculate" (click)="recalculateDates()" *ngIf="isEditMode">
+            🔄 Recalculer les dates
+          </button>
+        </div>
         <table class="tasks-table">
           <thead>
             <tr>
               <th>Nom</th>
               <th>Durée</th>
+              <th>Début</th>
               <th>Échéance</th>
               <th>Statut</th>
+              <th>Dépendances</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -121,10 +155,19 @@
             <tr *ngFor="let task of project.tasks; let i = index">
               <td>{{ task.name }}</td>
               <td>{{ task.duration }} jour{{ task.duration > 1 ? 's' : '' }}</td>
+              <td>{{ task.startDate ? (task.startDate | date:'dd/MM/yyyy') : '-' }}</td>
               <td>{{ task.dueDate ? (task.dueDate | date:'dd/MM/yyyy') : '-' }}</td>
               <td>
-                <span class="status" [class.done]="task.done">
-                  {{ task.done ? '✅ Terminée' : '🕛 En cours' }}
+                <span class="status-badge" [class]="getStatusClass(task.status || 'TODO')">
+                  {{ getStatusLabel(task.status || 'TODO') }}
+                </span>
+              </td>
+              <td>
+                <span class="dependencies" *ngIf="task.predecessorIds && task.predecessorIds.length > 0">
+                  {{ getPredecessorNames(task.predecessorIds).join(', ') }}
+                </span>
+                <span class="no-dependencies" *ngIf="!task.predecessorIds || task.predecessorIds.length === 0">
+                  Aucune
                 </span>
               </td>
               <td class="task-actions">

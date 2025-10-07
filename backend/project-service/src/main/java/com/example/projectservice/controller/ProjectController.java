@@ -77,11 +77,38 @@ public class ProjectController {
 
     @PutMapping("/{projectId}/tasks/{taskId}")
     public TaskDTO updateTask(@PathVariable Long projectId, @PathVariable Long taskId, @RequestBody TaskDTO taskDto) {
-        return taskMapper.toDto(service.updateTask(projectId, taskId, taskMapper.toEntity(taskDto)));
+        Task task = taskMapper.toEntity(taskDto);
+        Task updatedTask = service.updateTaskWithPredecessors(projectId, taskId, task, taskDto.getPredecessorIds());
+        return taskMapper.toDto(updatedTask);
     }
 
     @DeleteMapping("/{projectId}/tasks/{taskId}")
     public void deleteTask(@PathVariable Long projectId, @PathVariable Long taskId) {
         service.deleteTask(taskId);
+    }
+
+    // ----- Task dependencies endpoints -----
+    
+    @PostMapping("/{projectId}/tasks/{taskId}/predecessors/{predecessorId}")
+    public TaskDTO addPredecessor(@PathVariable Long projectId, @PathVariable Long taskId, @PathVariable Long predecessorId) {
+        Task task = service.addPredecessor(taskId, predecessorId);
+        return taskMapper.toDto(task);
+    }
+
+    @DeleteMapping("/{projectId}/tasks/{taskId}/predecessors/{predecessorId}")
+    public TaskDTO removePredecessor(@PathVariable Long projectId, @PathVariable Long taskId, @PathVariable Long predecessorId) {
+        Task task = service.removePredecessor(taskId, predecessorId);
+        return taskMapper.toDto(task);
+    }
+
+    @PutMapping("/{projectId}/tasks/{taskId}/predecessors")
+    public TaskDTO updatePredecessors(@PathVariable Long projectId, @PathVariable Long taskId, @RequestBody List<Long> predecessorIds) {
+        Task task = service.updateTaskPredecessors(taskId, predecessorIds);
+        return taskMapper.toDto(task);
+    }
+
+    @PostMapping("/{projectId}/recalculate-dates")
+    public void recalculateProjectDates(@PathVariable Long projectId) {
+        service.recalculateProjectDates(projectId);
     }
 }

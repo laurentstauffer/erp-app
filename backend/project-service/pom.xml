@@ -115,6 +115,10 @@
                         <version>0.2.0</version>
                     </path>
                 </annotationProcessorPaths>
+                <!-- (Optionnel) Activer le mode verbeux -->
+                <compilerArgs>
+                    <arg>-Amapstruct.verbose=true</arg>
+                </compilerArgs>
             </configuration>
         </plugin>
 

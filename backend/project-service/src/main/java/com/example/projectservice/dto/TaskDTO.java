@@ -1,6 +1,8 @@
 package com.example.projectservice.dto;
 
 import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter @Setter
 @NoArgsConstructor
@@ -10,7 +12,11 @@ public class TaskDTO {
     private Long id;
     private String name;
     private int duration;
-    private boolean done;   
-    private String dueDate; // Changed to String for simplicity
+    private String startDate; // Date de début
+    private String dueDate; // Date de fin
+    private boolean done;
+    private String status;
     
+    @Builder.Default
+    private List<Long> predecessorIds = new ArrayList<>(); // IDs des tâches prédécesseurs
 }
