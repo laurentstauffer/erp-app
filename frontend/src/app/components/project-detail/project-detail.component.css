@@ -330,6 +330,19 @@
   font-size: 0.9rem;
 }
 
+/* Styles pour les assignés */
+.assignees {
+  color: #27ae60;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.no-assignees {
+  color: #95a5a6;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
 /* Section de recalcul */
 .recalculate-section {
   margin-bottom: 1rem;

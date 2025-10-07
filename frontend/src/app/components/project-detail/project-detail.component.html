@@ -99,7 +99,21 @@
                 {{ task.name }}
               </option>
             </select>
-            <small class="help-text">Maintenez Ctrl (Cmd sur Mac) pour sélectionner plusieurs tâches</small>
+            <small class="help-text">Maintenez Ctrl (Cmd sur Mac) pour sélectionner plusieurs</small>
+          </div>
+
+          <div class="form-group">
+            <label for="taskAssignees">Ressources (utilisateurs assignés)</label>
+            <select 
+              id="taskAssignees" 
+              [(ngModel)]="newTask.assigneeIds" 
+              multiple
+              size="3">
+              <option *ngFor="let user of users" [value]="user.id">
+                {{ user.username }}
+              </option>
+            </select>
+            <small class="help-text">Maintenez Ctrl (Cmd sur Mac) pour sélectionner plusieurs</small>
           </div>
 
           <div class="form-group">
@@ -148,6 +162,7 @@
               <th>Échéance</th>
               <th>Statut</th>
               <th>Dépendances</th>
+              <th>Assignés</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -168,6 +183,14 @@
                 </span>
                 <span class="no-dependencies" *ngIf="!task.predecessorIds || task.predecessorIds.length === 0">
                   Aucune
+                </span>
+              </td>
+              <td>
+                <span class="assignees" *ngIf="task.assigneeIds && task.assigneeIds.length > 0">
+                  👤 {{ getAssigneeNames(task.assigneeIds).join(', ') }}
+                </span>
+                <span class="no-assignees" *ngIf="!task.assigneeIds || task.assigneeIds.length === 0">
+                  Non assignée
                 </span>
               </td>
               <td class="task-actions">

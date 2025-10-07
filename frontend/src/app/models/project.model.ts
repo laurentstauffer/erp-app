@@ -17,6 +17,13 @@ export interface Task {
   status?: TaskStatus;
   projectId?: number;
   predecessorIds?: number[];
+  assigneeIds?: number[]; // IDs des utilisateurs assignés
+}
+
+export interface User {
+  id: number;
+  username: string;
+  email: string;
 }
 
 export enum TaskStatus {

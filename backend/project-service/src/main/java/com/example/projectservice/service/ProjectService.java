@@ -110,6 +110,11 @@ public class ProjectService {
             task.setStatus(updatedTask.getStatus());
         }
         
+        // Mettre à jour les assignés (ressources)
+        if (updatedTask.getAssigneeIds() != null) {
+            task.setAssigneeIds(new ArrayList<>(updatedTask.getAssigneeIds()));
+        }
+        
         // Mettre à jour les prédécesseurs
         task.getPredecessors().clear();
         

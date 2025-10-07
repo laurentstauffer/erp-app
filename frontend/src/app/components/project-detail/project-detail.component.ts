@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
+import { UserService, User } from '../../services/user.service';
 import { Project, Task, TaskStatus } from '../../models/project.model';
 
 @Component({
@@ -32,21 +33,38 @@ export class ProjectDetailComponent implements OnInit {
     status: TaskStatus.TODO,
     dueDate: '',
     startDate: '',
-    predecessorIds: []
+    predecessorIds: [],
+    assigneeIds: []
   };
 
   editingTaskIndex: number | null = null;
+  users: User[] = []; // Liste des utilisateurs disponibles
 
   projectService = inject(ProjectService);
+  userService = inject(UserService);
   route = inject(ActivatedRoute);
   router = inject(Router);
 
   ngOnInit(): void {
+    // Charger la liste des utilisateurs
+    this.loadUsers();
+    
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'new') {
       this.isEditMode = true;
       this.loadProject(parseInt(id));
     }
+  }
+
+  loadUsers(): void {
+    this.userService.getUsers().subscribe({
+      next: (users) => {
+        this.users = users;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des utilisateurs:', error);
+      }
+    });
   }
 
   loadProject(id: number): void {
@@ -195,7 +213,8 @@ export class ProjectDetailComponent implements OnInit {
       status: TaskStatus.TODO,
       dueDate: '',
       startDate: '',
-      predecessorIds: []
+      predecessorIds: [],
+      assigneeIds: []
     };
     this.editingTaskIndex = null;
   }
@@ -270,5 +289,17 @@ export class ProjectDetailComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  getAssigneeNames(assigneeIds: number[]): string[] {
+    if (!assigneeIds || !this.users) {
+      return [];
+    }
+    
+    return assigneeIds
+      .map(id => {
+        const user = this.users.find(u => u.id === id);
+        return user ? user.username : `User #${id}`;
+      });
   }
 }

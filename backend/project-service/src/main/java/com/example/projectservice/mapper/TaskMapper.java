@@ -19,6 +19,7 @@ public interface TaskMapper {
     @Mapping(source = "startDate", target = "startDate", qualifiedByName = "dateToString")
     @Mapping(source = "dueDate", target = "dueDate", qualifiedByName = "dateToString")
     @Mapping(source = "predecessors", target = "predecessorIds", qualifiedByName = "predecessorsToIds")
+    @Mapping(source = "assigneeIds", target = "assigneeIds")
     TaskDTO toDto(Task task);
     
     @Mapping(target = "project", ignore = true)
@@ -27,6 +28,7 @@ public interface TaskMapper {
     @Mapping(source = "status", target = "status", qualifiedByName = "stringToStatus")
     @Mapping(source = "startDate", target = "startDate", qualifiedByName = "stringToDate")
     @Mapping(source = "dueDate", target = "dueDate", qualifiedByName = "stringToDate")
+    @Mapping(source = "assigneeIds", target = "assigneeIds")
     Task toEntity(TaskDTO dto);
 
     List<TaskDTO> toDtoList(List<Task> tasks);

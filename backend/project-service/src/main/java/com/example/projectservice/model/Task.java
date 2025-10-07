@@ -28,6 +28,13 @@ public class Task {
     @Builder.Default
     private TaskStatus status = TaskStatus.TODO;
 
+    // Affectation de ressources (IDs des utilisateurs assignés)
+    @ElementCollection
+    @CollectionTable(name = "task_assignees", joinColumns = @JoinColumn(name = "task_id"))
+    @Column(name = "user_id")
+    @Builder.Default
+    private List<Long> assigneeIds = new ArrayList<>();
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;

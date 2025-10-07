@@ -19,4 +19,7 @@ public class TaskDTO {
     
     @Builder.Default
     private List<Long> predecessorIds = new ArrayList<>(); // IDs des tâches prédécesseurs
+    
+    @Builder.Default
+    private List<Long> assigneeIds = new ArrayList<>(); // IDs des utilisateurs assignés
 }
