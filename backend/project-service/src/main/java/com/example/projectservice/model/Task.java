@@ -28,6 +28,11 @@ public class Task {
     @Builder.Default
     private TaskStatus status = TaskStatus.TODO;
 
+    // Pourcentage d'avancement (0-100)
+    @Column(columnDefinition = "integer default 0")
+    @Builder.Default
+    private int progress = 0;
+
     // Affectation de ressources (IDs des utilisateurs assignés)
     @ElementCollection
     @CollectionTable(name = "task_assignees", joinColumns = @JoinColumn(name = "task_id"))

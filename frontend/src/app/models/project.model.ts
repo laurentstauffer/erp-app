@@ -15,6 +15,7 @@ export interface Task {
   dueDate?: string;
   done: boolean;
   status?: TaskStatus;
+  progress?: number; // Pourcentage d'avancement (0-100)
   projectId?: number;
   predecessorIds?: number[];
   assigneeIds?: number[]; // IDs des utilisateurs assignés

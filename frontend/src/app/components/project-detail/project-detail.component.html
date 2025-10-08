@@ -89,6 +89,18 @@
           </div>
 
           <div class="form-group">
+            <label for="taskProgress">Avancement : {{ newTask.progress || 0 }}%</label>
+            <input 
+              id="taskProgress" 
+              type="range" 
+              [(ngModel)]="newTask.progress"
+              min="0"
+              max="100"
+              step="5"
+              class="progress-slider">
+          </div>
+
+          <div class="form-group">
             <label for="taskPredecessors">Dépendances (tâches prédécesseurs)</label>
             <select 
               id="taskPredecessors" 
@@ -161,6 +173,7 @@
               <th>Début</th>
               <th>Échéance</th>
               <th>Statut</th>
+              <th>Avancement</th>
               <th>Dépendances</th>
               <th>Assignés</th>
               <th>Actions</th>
@@ -176,6 +189,14 @@
                 <span class="status-badge" [class]="getStatusClass(task.status || 'TODO')">
                   {{ getStatusLabel(task.status || 'TODO') }}
                 </span>
+              </td>
+              <td>
+                <div class="progress-container">
+                  <div class="progress-bar">
+                    <div class="progress-fill" [style.width.%]="task.progress || 0"></div>
+                  </div>
+                  <span class="progress-text">{{ task.progress || 0 }}%</span>
+                </div>
               </td>
               <td>
                 <span class="dependencies" *ngIf="task.predecessorIds && task.predecessorIds.length > 0">

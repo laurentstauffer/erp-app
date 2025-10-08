@@ -105,6 +105,7 @@ public class ProjectService {
         task.setDone(updatedTask.isDone());
         task.setStartDate(updatedTask.getStartDate());
         task.setDueDate(updatedTask.getDueDate());
+        task.setProgress(updatedTask.getProgress()); // Pourcentage d'avancement
         
         if (updatedTask.getStatus() != null) {
             task.setStatus(updatedTask.getStatus());

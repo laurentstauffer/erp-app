@@ -18,6 +18,9 @@ public class TaskDTO {
     private String status;
     
     @Builder.Default
+    private int progress = 0; // Pourcentage d'avancement (0-100)
+    
+    @Builder.Default
     private List<Long> predecessorIds = new ArrayList<>(); // IDs des tâches prédécesseurs
     
     @Builder.Default
