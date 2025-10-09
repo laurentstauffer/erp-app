@@ -117,8 +117,8 @@ public class ProjectService {
         }
         
         // Mettre à jour les prédécesseurs
-        task.getPredecessors().clear();
-        
+        // IMPORTANT: Valider d'abord que tous les prédécesseurs existent AVANT de clear()
+        List<Task> newPredecessors = new ArrayList<>();
         if (predecessorIds != null && !predecessorIds.isEmpty()) {
             for (Long predecessorId : predecessorIds) {
                 Task predecessor = taskRepository.findById(predecessorId)
@@ -134,9 +134,13 @@ public class ProjectService {
                     throw new RuntimeException("Adding this dependency would create a cycle");
                 }
                 
-                task.getPredecessors().add(predecessor);
+                newPredecessors.add(predecessor);
             }
         }
+        
+        // Maintenant qu'on a validé tous les prédécesseurs, on peut clear et reconstruire
+        task.getPredecessors().clear();
+        task.getPredecessors().addAll(newPredecessors);
         
         Task savedTask = taskRepository.save(task);
         
@@ -199,10 +203,8 @@ public class ProjectService {
         Task task = taskRepository.findById(taskId)
             .orElseThrow(() -> new RuntimeException("Task not found"));
         
-        // Effacer les prédécesseurs existants
-        task.getPredecessors().clear();
-        
-        // Ajouter les nouveaux prédécesseurs
+        // IMPORTANT: Valider d'abord que tous les prédécesseurs existent AVANT de clear()
+        List<Task> newPredecessors = new ArrayList<>();
         if (predecessorIds != null && !predecessorIds.isEmpty()) {
             for (Long predecessorId : predecessorIds) {
                 Task predecessor = taskRepository.findById(predecessorId)
@@ -218,9 +220,13 @@ public class ProjectService {
                     throw new RuntimeException("Adding this dependency would create a cycle");
                 }
                 
-                task.getPredecessors().add(predecessor);
+                newPredecessors.add(predecessor);
             }
         }
+        
+        // Maintenant qu'on a validé tous les prédécesseurs, on peut clear et reconstruire
+        task.getPredecessors().clear();
+        task.getPredecessors().addAll(newPredecessors);
         
         Task savedTask = taskRepository.save(task);
         

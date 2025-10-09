@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, model, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, model, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { User, UserService } from '../../services/user.service';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
@@ -24,6 +24,7 @@ export class UserListComponent implements OnInit {
   showForm = false;
 
   userService = inject(UserService);
+  private destroyRef = inject(DestroyRef);
 
   constructor() {}
 
@@ -33,7 +34,7 @@ export class UserListComponent implements OnInit {
 
   loadUsers() {
     this.userService.getUsers()
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(users => this.users.set(users));
   }
 

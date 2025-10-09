@@ -1,17 +1,19 @@
 <div class="task-form-container">
   <h4>Ajouter une tâche</h4>
 
-
-  <form (ngSubmit)="createTask()" #taskForm="ngForm">
+  <form [formGroup]="taskForm" (ngSubmit)="createTask()">
     <div class="form-group">
       <label for="name">Nom</label>
       <input
         type="text"
         id="name"
-        name="name"
-        [(ngModel)]="task.name"
-        required
+        formControlName="name"
+        [class.error]="name?.invalid && name?.touched"
       />
+      <div *ngIf="name?.invalid && name?.touched" class="error-message">
+        <small *ngIf="name?.errors?.['required']">Le nom est requis</small>
+        <small *ngIf="name?.errors?.['minlength']">Le nom doit contenir au moins 3 caractères</small>
+      </div>
     </div>
 
     <div class="form-group">
@@ -19,11 +21,15 @@
       <input
         type="number"
         id="duration"
-        name="duration"
-        [(ngModel)]="task.duration"
-        required
+        formControlName="duration"
+        [class.error]="duration?.invalid && duration?.touched"
         min="0"
+        step="0.5"
       />
+      <div *ngIf="duration?.invalid && duration?.touched" class="error-message">
+        <small *ngIf="duration?.errors?.['required']">La durée est requise</small>
+        <small *ngIf="duration?.errors?.['min']">La durée doit être supérieure à 0</small>
+      </div>
     </div>
 
     <div class="form-group">
@@ -31,22 +37,22 @@
       <input
         type="checkbox"
         id="done"
-        name="done"
-        [(ngModel)]="task.done"
+        formControlName="done"
       />
     </div>
 
     <div class="form-group">
-      <label for="dueDate">Date d’échéance</label>
+      <label for="dueDate">Date d'échéance</label>
       <input
         type="date"
         id="dueDate"
-        name="dueDate"
-        [(ngModel)]="task.dueDate"
+        formControlName="dueDate"
       />
     </div>
 
-    <button type="submit" class="btn">Ajouter la tâche</button>
+    <button type="submit" class="btn" [disabled]="taskForm.invalid">
+      Ajouter la tâche
+    </button>
   </form>
 
   <p class="success" *ngIf="successMessage">{{ successMessage }}</p>

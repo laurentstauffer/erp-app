@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
 import { UserService, User } from '../../services/user.service';
@@ -9,11 +9,14 @@ import { Project, Task, TaskStatus } from '../../models/project.model';
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './project-detail.component.html',
   styleUrls: ['./project-detail.component.css']
 })
 export class ProjectDetailComponent implements OnInit {
+  projectForm!: FormGroup;
+  taskForm!: FormGroup;
+  
   project: Project = {
     name: '',
     description: '',
@@ -25,29 +28,17 @@ export class ProjectDetailComponent implements OnInit {
   isEditMode = false;
   isLoading = false;
   errorMessage = '';
-  
-  newTask: Task = {
-    name: '',
-    duration: 1,
-    done: false,
-    status: TaskStatus.TODO,
-    progress: 0,
-    dueDate: '',
-    startDate: '',
-    predecessorIds: [],
-    assigneeIds: []
-  };
-
   editingTaskIndex: number | null = null;
-  users: User[] = []; // Liste des utilisateurs disponibles
+  users: User[] = [];
 
+  private fb = inject(FormBuilder);
   projectService = inject(ProjectService);
   userService = inject(UserService);
   route = inject(ActivatedRoute);
   router = inject(Router);
 
   ngOnInit(): void {
-    // Charger la liste des utilisateurs
+    this.initForms();
     this.loadUsers();
     
     const id = this.route.snapshot.paramMap.get('id');
@@ -56,6 +47,38 @@ export class ProjectDetailComponent implements OnInit {
       this.loadProject(parseInt(id));
     }
   }
+
+  initForms(): void {
+    // Formulaire de projet
+    this.projectForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      description: ['', Validators.required],
+      startDate: ['', Validators.required],
+      endDate: ['', Validators.required]
+    });
+
+    // Formulaire de tâche
+    this.taskForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      duration: [1, [Validators.required, Validators.min(1)]],
+      status: [TaskStatus.TODO, Validators.required],
+      progress: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
+      dueDate: [''],
+      startDate: [''],
+      predecessorIds: [[]],
+      assigneeIds: [[]]
+    });
+  }
+
+  // Getters pour les champs du formulaire projet
+  get name() { return this.projectForm.get('name'); }
+  get description() { return this.projectForm.get('description'); }
+  get startDate() { return this.projectForm.get('startDate'); }
+  get endDate() { return this.projectForm.get('endDate'); }
+
+  // Getters pour les champs du formulaire tâche
+  get taskName() { return this.taskForm.get('name'); }
+  get taskDuration() { return this.taskForm.get('duration'); }
 
   loadUsers(): void {
     this.userService.getUsers().subscribe({
@@ -76,6 +99,13 @@ export class ProjectDetailComponent implements OnInit {
         if (!this.project.tasks) {
           this.project.tasks = [];
         }
+        // Remplir le formulaire avec les données du projet
+        this.projectForm.patchValue({
+          name: this.project.name,
+          description: this.project.description,
+          startDate: this.project.startDate,
+          endDate: this.project.endDate
+        });
         this.isLoading = false;
       },
       error: (error) => {
@@ -153,23 +183,32 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   validateProject(): boolean {
-    if (!this.project.name || !this.project.description || !this.project.startDate || !this.project.endDate) {
+    if (this.projectForm.invalid) {
+      this.projectForm.markAllAsTouched();
       this.errorMessage = 'Tous les champs sont obligatoires';
       return false;
     }
     
-    if (new Date(this.project.startDate) > new Date(this.project.endDate)) {
+    const formValues = this.projectForm.value;
+    if (new Date(formValues.startDate) > new Date(formValues.endDate)) {
       this.errorMessage = 'La date de fin doit être après la date de début';
       return false;
     }
+    
+    // Synchroniser les valeurs du formulaire avec l'objet project
+    this.project.name = formValues.name;
+    this.project.description = formValues.description;
+    this.project.startDate = formValues.startDate;
+    this.project.endDate = formValues.endDate;
     
     this.errorMessage = '';
     return true;
   }
 
   addTask(): void {
-    if (!this.newTask.name || this.newTask.duration <= 0) {
-      alert('Veuillez remplir tous les champs de la tâche');
+    if (this.taskForm.invalid) {
+      this.taskForm.markAllAsTouched();
+      alert('Veuillez remplir correctement tous les champs de la tâche');
       return;
     }
 
@@ -177,26 +216,40 @@ export class ProjectDetailComponent implements OnInit {
       this.project.tasks = [];
     }
 
+    const taskData: Task = {
+      ...this.taskForm.value,
+      done: false
+    };
+
     if (this.editingTaskIndex !== null) {
       // Mode édition : mettre à jour la tâche existante
-      this.project.tasks[this.editingTaskIndex] = { ...this.newTask };
+      this.project.tasks[this.editingTaskIndex] = { ...taskData };
       this.editingTaskIndex = null;
     } else {
       // Mode ajout : ajouter une nouvelle tâche
-      this.project.tasks.push({ ...this.newTask });
+      this.project.tasks.push(taskData);
     }
     
-    this.resetNewTask();
+    this.resetTaskForm();
   }
 
   editTask(index: number): void {
     const task = this.project.tasks![index];
-    this.newTask = { ...task };
+    this.taskForm.patchValue({
+      name: task.name,
+      duration: task.duration,
+      status: task.status || TaskStatus.TODO,
+      progress: task.progress || 0,
+      dueDate: task.dueDate || '',
+      startDate: task.startDate || '',
+      predecessorIds: task.predecessorIds || [],
+      assigneeIds: task.assigneeIds || []
+    });
     this.editingTaskIndex = index;
   }
 
   cancelEdit(): void {
-    this.resetNewTask();
+    this.resetTaskForm();
     this.editingTaskIndex = null;
   }
 
@@ -206,18 +259,17 @@ export class ProjectDetailComponent implements OnInit {
     }
   }
 
-  resetNewTask(): void {
-    this.newTask = {
+  resetTaskForm(): void {
+    this.taskForm.reset({
       name: '',
       duration: 1,
-      done: false,
       status: TaskStatus.TODO,
       progress: 0,
       dueDate: '',
       startDate: '',
       predecessorIds: [],
       assigneeIds: []
-    };
+    });
     this.editingTaskIndex = null;
   }
 

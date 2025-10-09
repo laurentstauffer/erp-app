@@ -1,16 +1,46 @@
 <div class="project-form-container">
   <h3>{{ isEditMode ? 'Modifier le projet' : 'Créer un projet' }}</h3>
-  <form (ngSubmit)="saveProject()">
-    <label for="name">Nom du projet</label>
-    <input id="name" type="text" [(ngModel)]="project.name" name="name" required />
+  <form [formGroup]="projectForm" (ngSubmit)="saveProject()">
+    <div>
+      <label for="name">Nom du projet</label>
+      <input 
+        id="name" 
+        type="text" 
+        formControlName="name" 
+        [class.error]="name?.invalid && name?.touched" />
+      <div *ngIf="name?.invalid && name?.touched" class="error-message">
+        <small *ngIf="name?.errors?.['required']">Le nom est requis</small>
+        <small *ngIf="name?.errors?.['minlength']">Le nom doit contenir au moins 3 caractères</small>
+      </div>
+    </div>
 
-    <label for="startDate">Date de début</label>
-    <input id="startDate" type="date" [(ngModel)]="project.startDate" name="startDate" required />
+    <div>
+      <label for="startDate">Date de début</label>
+      <input 
+        id="startDate" 
+        type="date" 
+        formControlName="startDate"
+        [class.error]="startDate?.invalid && startDate?.touched" />
+      <div *ngIf="startDate?.invalid && startDate?.touched" class="error-message">
+        <small *ngIf="startDate?.errors?.['required']">La date de début est requise</small>
+      </div>
+    </div>
 
-    <label for="endDate">Date de fin</label>
-    <input id="endDate" type="date" [(ngModel)]="project.endDate" name="endDate" required />
+    <div>
+      <label for="endDate">Date de fin</label>
+      <input 
+        id="endDate" 
+        type="date" 
+        formControlName="endDate"
+        [class.error]="endDate?.invalid && endDate?.touched" />
+      <div *ngIf="endDate?.invalid && endDate?.touched" class="error-message">
+        <small *ngIf="endDate?.errors?.['required']">La date de fin est requise</small>
+      </div>
+    </div>
 
-    <button type="submit">{{ isEditMode ? 'Modifier' : 'Ajouter' }}</button>
+    <button type="submit" [disabled]="projectForm.invalid">
+      {{ isEditMode ? 'Modifier' : 'Ajouter' }}
+    </button>
   </form>
 
   <p class="success" *ngIf="successMessage">{{ successMessage }}</p>

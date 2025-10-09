@@ -45,7 +45,7 @@ public class Task {
     private Project project;
 
     // Tâches qui doivent être terminées avant celle-ci
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
         name = "task_dependencies",
         joinColumns = @JoinColumn(name = "task_id"),
@@ -58,6 +58,24 @@ public class Task {
     @ManyToMany(mappedBy = "predecessors", fetch = FetchType.LAZY)
     @Builder.Default
     private List<Task> successors = new ArrayList<>();
+
+    /**
+     * Cleanup method called before task deletion to remove all dependencies
+     */
+    @PreRemove
+    private void removeTaskDependencies() {
+        // Remove this task from all predecessors' successors lists
+        for (Task predecessor : new ArrayList<>(predecessors)) {
+            predecessor.getSuccessors().remove(this);
+        }
+        predecessors.clear();
+        
+        // Remove this task from all successors' predecessors lists
+        for (Task successor : new ArrayList<>(successors)) {
+            successor.getPredecessors().remove(this);
+        }
+        successors.clear();
+    }
 
     public enum TaskStatus {
         TODO,
